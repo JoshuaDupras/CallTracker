@@ -6,6 +6,8 @@
 *.dylib
 test
 *.test
+release.exe
+release
 
 # Build output
 build/

@@ -57,5 +57,3 @@ export function UpdateUserAdminStatus(arg1:number,arg2:boolean):Promise<void>;
 export function UpdateUserJoinDate(arg1:number,arg2:string):Promise<void>;
 
 export function UpdateUserPosition(arg1:number,arg2:string):Promise<void>;
-
-export function UpdateUserRole(arg1:number,arg2:string):Promise<void>;

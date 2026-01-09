@@ -113,7 +113,3 @@ export function UpdateUserJoinDate(arg1, arg2) {
 export function UpdateUserPosition(arg1, arg2) {
   return window['go']['main']['App']['UpdateUserPosition'](arg1, arg2);
 }
-
-export function UpdateUserRole(arg1, arg2) {
-  return window['go']['main']['App']['UpdateUserRole'](arg1, arg2);
-}

@@ -97,7 +97,6 @@ export namespace db {
 	    joined_date?: any;
 	    // Go type: time
 	    created: any;
-	    role?: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new User(source);
@@ -115,7 +114,6 @@ export namespace db {
 	        this.active = source["active"];
 	        this.joined_date = this.convertValues(source["joined_date"], null);
 	        this.created = this.convertValues(source["created"], null);
-	        this.role = source["role"];
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {

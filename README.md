@@ -406,3 +406,43 @@ wails build -clean -nsis
 - User and picklist management
 
 ---
+
+## Contributing and Development
+
+### Running Tests
+```powershell
+go test ./... -v
+```
+
+### Making Changes
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Make your changes and commit: `git commit -m "Add my feature"`
+4. Push to your fork: `git push origin feature/my-feature`
+5. Open a Pull Request
+
+### Release Process
+
+See [RELEASE.md](RELEASE.md) for detailed instructions on creating releases.
+
+**Quick automated release:**
+```bash
+go run scripts/release.go
+```
+
+The interactive tool will guide you through the entire release process.
+
+**Manual release:**
+```powershell
+# Update version in wails.json
+# Update CHANGELOG.md
+git add .
+git commit -m "Release v1.0.0"
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin main
+git push origin v1.0.0
+```
+
+GitHub Actions will automatically build binaries for Windows, Linux, and macOS and create a release.
+
+---
