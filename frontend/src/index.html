@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FD Call Log</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Login Screen -->
+        <div id="login-screen" class="screen">
+            <div class="login-container">
+                <h1>🚒 Fire Department Call Log</h1>
+                <div class="login-form">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <select id="login-name" onchange="userSelected()">
+                            <option value="">Select your name...</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="pin-group" style="display:none;">
+                        <label>PIN</label>
+                        <input type="password" id="login-pin" maxlength="4" placeholder="Enter 4-digit PIN">
+                    </div>
+                    <button class="btn btn-primary" id="login-btn" onclick="doLogin()" style="display:none;">Login</button>
+                    <div id="login-error" class="error"></div>
+                    <div id="admin-warning" class="warning" style="display:none;"></div>
+                    <div class="admin-link" id="admin-link-div">
+                        <a href="#" onclick="showAdminLogin(); return false;">Admin Login</a>
+                    </div>
+                    <div class="admin-link" id="back-to-users-div" style="display:none;">
+                        <a href="#" onclick="backToUserLogin(); return false;">← Back to User List</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Menu Screen -->
+        <div id="menu-screen" class="screen" style="display:none;">
+            <div class="header">
+                <h1>Fire Department Call Log</h1>
+                <div class="user-info">
+                    <span id="current-user"></span>
+                    <button class="btn btn-secondary" onclick="showChangePIN()">🔑 Change PIN</button>
+                    <button class="btn btn-secondary" onclick="doLogout()">🚪 Logout</button>
+                </div>
+            </div>
+            
+            <div class="menu-container">
+                <div class="card">
+                    <h2>Main Menu</h2>
+                    <div class="button-grid">
+                        <button class="btn btn-large btn-primary" onclick="showNewCall()">📞 New Call</button>
+                        <button class="btn btn-large" onclick="showCallList()">📋 Call List</button>
+                        <button class="btn btn-large" onclick="showSearch()">🔍 Search</button>
+                        <button class="btn btn-large" onclick="showReports()">📊 Reports / Print</button>
+                        <button class="btn btn-large" onclick="showExport()">💾 Export</button>
+                    </div>
+                </div>
+
+                <div id="admin-section" class="card" style="display:none;">
+                    <h2>Administration</h2>
+                    <div class="button-grid">
+                        <button class="btn btn-large btn-admin" onclick="showAdminRoster()">👥 Manage Roster</button>
+                        <button class="btn btn-large btn-admin" onclick="showAdminPicklists()">📝 Manage Dropdowns</button>
+                        <button class="btn btn-large btn-admin" onclick="showFormSettings()">⚙️ Form Settings</button>
+                        <button class="btn btn-large btn-admin" onclick="showSettings()">🔧 Settings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Call Screen -->
+        <div id="newcall-screen" class="screen" style="display:none;">
+            <div class="header">
+                <button class="btn btn-back" onclick="backToMenu()">← Back</button>
+                <h1>New Call Entry</h1>
+                <div id="incident-number-header" style="display: none; margin-left: auto; padding: 10px 20px; background: #2196F3; color: white; border-radius: 8px; font-size: 1.1em; font-weight: bold;">
+                    Incident #: <span id="incident-number-display">-</span>
+                </div>
+            </div>
+            <div class="wizard-container">
+                <!-- Summary Panel (right side) -->
+                <div class="summary-panel">
+                    <h3>Call Summary</h3>
+                    <div class="summary-item" data-summary-field="dispatched">
+                        <span class="summary-label">Dispatched:</span>
+                        <span class="summary-value" id="summary-dispatched">-</span>
+                    </div>
+                    <div class="summary-item" data-summary-field="incident-number">
+                        <span class="summary-label">Incident #:</span>
+                        <span class="summary-value" id="summary-incident">-</span>
+                    </div>
+                    <div class="summary-item" data-summary-field="call-type">
+                        <span class="summary-label">Call Type:</span>
+                        <span class="summary-value" id="summary-calltype">-</span>
+                    </div>
+                    <div class="summary-item" data-summary-field="mutual-aid">
+                        <span class="summary-label">Mutual Aid:</span>
+                        <span class="summary-value" id="summary-mutualaid">-</span>
+                    </div>
+                    <div class="summary-item" data-summary-field="address">
+                        <span class="summary-label">Address:</span>
+                        <span class="summary-value" id="summary-address">-</span>
+                    </div>
+                    <div class="summary-item" data-summary-field="town">
+                        <span class="summary-label">Town:</span>
+                        <span class="summary-value" id="summary-town">-</span>
+                    </div>
+                    <div class="summary-item" data-summary-field="location-notes">
+                        <span class="summary-label">Location Notes:</span>
+                        <span class="summary-value" id="summary-locnotes">-</span>
+                    </div>
+                    <div class="summary-item" data-summary-field="enroute">
+                        <span class="summary-label">Enroute:</span>
+                        <span class="summary-value" id="summary-enroute">-</span>
+                    </div>
+                    <div class="summary-item" data-summary-field="on-scene">
+                        <span class="summary-label">On Scene:</span>
+                        <span class="summary-value" id="summary-onscene">-</span>
+                    </div>
+                    <div class="summary-item" data-summary-field="clear">
+                        <span class="summary-label">Clear:</span>
+                        <span class="summary-value" id="summary-clear">-</span>
+                    </div>
+                    <div class="summary-item" data-summary-field="apparatus">
+                        <span class="summary-label">Apparatus:</span>
+                        <span class="summary-value" id="summary-apparatus">-</span>
+                    </div>
+                    <div class="summary-item" data-summary-field="responders">
+                        <span class="summary-label">Responders:</span>
+                        <span class="summary-value" id="summary-responders">-</span>
+                    </div>
+                    <div class="summary-item" data-summary-field="narrative">
+                        <span class="summary-label">Narrative:</span>
+                        <span class="summary-value" id="summary-narrative">-</span>
+                    </div>
+                </div>
+
+                <!-- Question Panel (left side) -->
+                <div class="question-panel">
+                    <div class="progress-indicator">
+                        <span id="question-progress">Question 1 of 10</span>
+                    </div>
+
+                    <!-- Hidden inputs to store data -->
+                    <input type="hidden" id="incident-number">
+                    <input type="hidden" id="call-type">
+                    <input type="hidden" id="priority">
+                    <input type="hidden" id="mutual-aid">
+                    <input type="hidden" id="mutual-aid-agencies">
+                    <input type="hidden" id="address">
+                    <input type="hidden" id="cross-streets">
+                    <input type="hidden" id="town">
+                    <input type="hidden" id="location-notes">
+                    <input type="hidden" id="dispatched">
+                    <input type="hidden" id="enroute">
+                    <input type="hidden" id="on-scene">
+                    <input type="hidden" id="clear">
+                    <input type="hidden" id="disposition">
+                    <input type="hidden" id="narrative">
+
+                    <!-- Question Cards -->
+                    <div class="question-card active" data-step="1" data-field="dispatched">
+                        <h2>When was the call dispatched?</h2>
+                        <p class="question-subtitle">Required - Select date and time</p>
+                        <div class="question-input">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Date:</label>
+                            <input type="date" id="q-dispatched-date" class="large-input" style="margin-bottom: 10px;">
+                            <div style="margin-bottom: 15px;">
+                                <button type="button" class="btn btn-secondary" onclick="setDispatchedDate('today')" style="margin-right: 10px;">Today</button>
+                                <button type="button" class="btn btn-secondary" onclick="setDispatchedDate('yesterday')">Yesterday</button>
+                            </div>
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Time:</label>
+                            <input type="time" id="q-dispatched-time" class="large-input">
+                        </div>
+                        <div style="margin-top: 15px; padding: 10px; background: #f0f0f0; border-radius: 5px;">
+                            <strong>Incident Number:</strong> <span id="incident-display" style="font-size: 1.2em; color: #333;">Enter date first</span>
+                        </div>
+                    </div>
+
+                    <div class="question-card" data-step="2" data-field="call-type">
+                        <h2>What type of call is this?</h2>
+                        <p class="question-subtitle">Required</p>
+                        <div class="question-input">
+                            <input type="text" id="q-call-type" class="large-input" placeholder="Type or select...">
+                        </div>
+                    </div>
+                    <div class="question-card" data-step="3" data-field="mutual-aid">
+                        <h2>Did we receive mutual aid?</h2>
+                        <div class="question-input">
+                            <input type="text" id="q-mutual-aid" class="large-input" placeholder="Type or select..." onchange="handleMutualAidChange()">
+                        </div>
+                    </div>
+
+                    <div class="question-card" data-step="3.5" data-field="mutual-aid-agencies" style="display:none;">
+                        <h2>Which agencies provided mutual aid?</h2>
+                        <p class="question-subtitle">Select one or more agencies</p>
+                        <div class="question-input">
+                            <input type="text" id="q-mutual-aid-agencies-input" class="large-input" placeholder="Type or select an agency...">
+                            <button type="button" class="btn btn-secondary" onclick="addMutualAidAgency()" style="margin-top: 10px;">Add Agency</button>
+                            <div id="selected-agencies" style="margin-top: 15px;"></div>
+                        </div>
+                    </div>
+
+                    <div class="question-card" data-step="4" data-field="address">
+                        <h2>What is the address?</h2>
+                        <p class="question-subtitle">Required</p>
+                        <div class="question-input">
+                            <input type="text" id="q-address" class="large-input" placeholder="Street address">
+                        </div>
+                    </div>
+
+                    <div class="question-card" data-step="5" data-field="town">
+                        <h2>What town?</h2>
+                        <div class="question-input">
+                            <input type="text" id="q-town" class="large-input" placeholder="Type or select...">
+                        </div>
+                    </div>
+
+                    <div class="question-card" data-step="6" data-field="location-notes">
+                        <h2>Any location notes?</h2>
+                        <div class="question-input">
+                            <input type="text" id="q-location-notes" class="large-input" placeholder="Building, apartment, etc. (Optional)">
+                        </div>
+                    </div>
+
+                    <div class="question-card" data-step="7" data-field="enroute">
+                        <h2>What time did you go enroute?</h2>
+                        <p class="question-subtitle">Defaults to dispatch time</p>
+                        <div class="question-input">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Date:</label>
+                            <input type="date" id="q-enroute-date" class="large-input" style="margin-bottom: 10px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Time:</label>
+                            <input type="time" id="q-enroute-time" class="large-input">
+                        </div>
+                    </div>
+
+                    <div class="question-card" data-step="8" data-field="on-scene">
+                        <h2>What time did you arrive on scene?</h2>
+                        <div class="question-input">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Date:</label>
+                            <input type="date" id="q-on-scene-date" class="large-input" style="margin-bottom: 10px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Time:</label>
+                            <input type="time" id="q-on-scene-time" class="large-input">
+                        </div>
+                    </div>
+
+                    <div class="question-card" data-step="9" data-field="clear">
+                        <h2>What time did you clear?</h2>
+                        <div class="question-input">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Date:</label>
+                            <input type="date" id="q-clear-date" class="large-input" style="margin-bottom: 10px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Time:</label>
+                            <input type="time" id="q-clear-time" class="large-input">
+                        </div>
+                    </div>
+
+                    <div class="question-card" data-step="10" data-field="apparatus">
+                        <h2>What apparatus responded?</h2>
+                        <p class="question-subtitle">Select one or more</p>
+                        <div class="question-input">
+                            <div id="apparatus-checkboxes" style="display: flex; flex-direction: column; gap: 10px;">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="question-card" data-step="11" data-field="responders">
+                        <h2>Who responded?</h2>
+                        <p class="question-subtitle">Select responding members</p>
+                        <div class="question-input">
+                            <div id="responders-checkboxes" style="display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto;">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="question-card" data-step="12" data-field="narrative">
+                        <h2>Describe the call details</h2>
+                        <p class="question-subtitle">Required - Provide narrative of actions taken</p>
+                        <div class="question-input">
+                            <textarea id="q-narrative" rows="6" class="large-input" placeholder="Describe the call details, actions taken, etc."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Navigation -->
+                    <div class="wizard-actions">
+                        <button class="btn btn-secondary" onclick="wizardPrevious()" id="btn-previous" style="display:none;">← Previous</button>
+                        <button class="btn btn-secondary" onclick="backToMenu()">Cancel</button>
+                        <button class="btn btn-primary" onclick="wizardNext()" id="btn-next">Next →</button>
+                        <button class="btn btn-primary" onclick="saveCall()" id="btn-save" style="display:none;">Save Call</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call List Screen -->
+        <div id="recent-screen" class="screen" style="display:none;">
+            <div class="header">
+                <button class="btn btn-back" onclick="backToMenu()">← Back</button>
+                <h1>Call List</h1>
+            </div>
+            <div class="year-selector" style="padding: 20px; background: #f5f5f5; margin: 20px; border-radius: 8px;">
+                <label style="font-weight: bold; margin-right: 10px;">Year:</label>
+                <select id="year-selector" onchange="loadCallsByYear()" style="padding: 8px; font-size: 1em; border-radius: 4px; border: 1px solid #ccc;">
+                </select>
+            </div>
+            <div class="stats-container" style="padding: 20px; margin: 0 20px 20px 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Calls</div>
+                        <div class="stat-value" id="stat-total">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Mutual Aid Given</div>
+                        <div class="stat-value" id="stat-mutual-aid-given">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Mutual Aid Received</div>
+                        <div class="stat-value" id="stat-mutual-aid-received">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Most Common Type</div>
+                        <div class="stat-value" id="stat-common-type">-</div>
+                    </div>
+                </div>
+            </div>
+            <div class="list-container" style="max-height: 500px; overflow-y: auto; margin: 0 20px;">
+                <div id="calls-list"></div>
+            </div>
+        </div>
+
+        <!-- Search Screen -->
+        <div id="search-screen" class="screen" style="display:none;">
+            <div class="header">
+                <button class="btn btn-back" onclick="backToMenu()">← Back</button>
+                <h1>Search Calls</h1>
+            </div>
+            <div class="form-container">
+                <div class="card">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Search Query</label>
+                            <input type="text" id="search-query" placeholder="Address, incident #, etc.">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary" onclick="performSearch()">Search</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="search-results" class="list-container"></div>
+            </div>
+        </div>
+
+        <!-- Admin Roster Screen -->
+        <div id="roster-screen" class="screen" style="display:none;">
+            <div class="header">
+                <button class="btn btn-back" onclick="backToMenu()">← Back</button>
+                <h1>Manage Roster</h1>
+                <button class="btn btn-primary" onclick="showAddUser()">+ Add User</button>
+            </div>
+            <div class="list-container">
+                <div id="roster-list"></div>
+            </div>
+        </div>
+
+        <!-- Admin Picklists Screen -->
+        <div id="picklists-screen" class="screen" style="display:none;">
+            <div class="header">
+                <button class="btn btn-back" onclick="backToMenu()">← Back</button>
+                <h1>Manage Dropdowns</h1>
+            </div>
+            <div class="form-container">
+                <div class="card">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="picklist-category" onchange="loadPicklistItems()">
+                            <option value="">Select category...</option>
+                            <option value="call_type">Call Types</option>
+                            <option value="priority">Priorities</option>
+                            <option value="mutual_aid">Mutual Aid</option>
+                            <option value="town">Towns</option>
+                            <option value="disposition">Dispositions</option>
+                            <option value="apparatus">Apparatus</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="showAddPicklist()">+ Add Item</button>
+                </div>
+                <div id="picklist-items" class="list-container"></div>
+            </div>
+        </div>
+
+        <!-- Export Screen -->
+        <div id="export-screen" class="screen" style="display:none;">
+            <div class="header">
+                <button class="btn btn-back" onclick="backToMenu()">← Back</button>
+                <h1>Export Data</h1>
+            </div>
+            <div class="menu-container">
+                <div class="card">
+                    <h3>Export Options</h3>
+                    <div class="button-grid">
+                        <button class="btn btn-large" onclick="exportCSV()">📄 Export to CSV</button>
+                        <button class="btn btn-large" onclick="exportPDF()">📑 Export to PDF</button>
+                    </div>
+                    <div id="export-status" class="success"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Dialogs -->
+    <div id="modal-overlay" class="modal-overlay" style="display:none;" onclick="closeModal()">
+        <div class="modal-dialog" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="modal-title">Dialog</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Dynamic content -->
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" id="modal-confirm-btn" onclick="confirmModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/wailsjs/runtime/runtime.js"></script>
+    <script src="/wailsjs/go/main/App.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

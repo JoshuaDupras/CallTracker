@@ -1,0 +1,10 @@
+{
+  "name": "fd-call-log-frontend",
+  "version": "1.0.0",
+  "description": "Fire Department Call Log Frontend",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "node build.js"
+  },
+  "devDependencies": {}
+}
