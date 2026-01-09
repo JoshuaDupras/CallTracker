@@ -7,7 +7,7 @@ This document describes how to create and publish releases for the Fire Departme
 **The easiest way to create a release:**
 
 ```bash
-go run scripts/release.go
+go run scripts/release
 ```
 
 The interactive release tool will:

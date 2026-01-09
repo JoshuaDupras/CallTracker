@@ -546,6 +546,19 @@ textarea {
     gap: 10px;
 }
 
+/* Version info - always visible in bottom left */
+#version-info {
+    position: fixed;
+    bottom: 8px;
+    left: 8px;
+    font-size: 11px;
+    color: #999;
+    font-family: 'Courier New', monospace;
+    z-index: 9999;
+    user-select: none;
+    pointer-events: none;
+}
+
 /* Modal Styles */
 .modal-overlay {
     position: fixed;

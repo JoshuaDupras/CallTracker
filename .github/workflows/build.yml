@@ -32,8 +32,13 @@ jobs:
         cd frontend
         npm install
 
-    - name: Build application
-      run: wails build
+    - name: Build application with version info
+      run: |
+        $COMMIT_SHORT = git rev-parse --short HEAD
+        $BUILD_TIME = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+        $LDFLAGS = "-X main.Version=dev -X main.GitCommit=$COMMIT_SHORT -X main.BuildTime=$BUILD_TIME"
+        wails build -ldflags $LDFLAGS
+      shell: pwsh
 
     - name: Test Go code
       run: go test ./... -v

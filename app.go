@@ -16,6 +16,15 @@ type App struct {
 	currentUser *db.User
 }
 
+// GetVersion returns version information for the UI
+func (a *App) GetVersion() map[string]string {
+	return map[string]string{
+		"version":   Version,
+		"commit":    GitCommit,
+		"buildTime": BuildTime,
+	}
+}
+
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{}

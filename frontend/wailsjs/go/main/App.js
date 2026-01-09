@@ -78,6 +78,10 @@ export function GetUserByID(arg1) {
   return window['go']['main']['App']['GetUserByID'](arg1);
 }
 
+export function GetVersion() {
+  return window['go']['main']['App']['GetVersion']();
+}
+
 export function Login(arg1, arg2) {
   return window['go']['main']['App']['Login'](arg1, arg2);
 }

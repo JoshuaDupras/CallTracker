@@ -13,11 +13,18 @@ import (
 //go:embed all:frontend/dist
 var assets embed.FS
 
+// Version information - injected at build time via ldflags
+var (
+	Version   = "dev"
+	GitCommit = "unknown"
+	BuildTime = "unknown"
+)
+
 func main() {
 	// Create an instance of the app structure
 	app := NewApp()
 
-	log.Println("Starting Wails application...")
+	log.Printf("Starting Wails application... Version: %s, Commit: %s, Built: %s\n", Version, GitCommit, BuildTime)
 
 	// Create application with options
 	err := wails.Run(&options.App{

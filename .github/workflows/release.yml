@@ -34,8 +34,20 @@ jobs:
         cd frontend
         npm install
 
+    - name: Extract version from tag
+      id: version
+      run: |
+        $VERSION = $env:GITHUB_REF -replace 'refs/tags/v', ''
+        echo "VERSION=$VERSION" >> $env:GITHUB_OUTPUT
+        $BUILD_TIME = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+        echo "BUILD_TIME=$BUILD_TIME" >> $env:GITHUB_OUTPUT
+      shell: pwsh
+
     - name: Build for Windows
-      run: wails build -platform windows/amd64
+      run: |
+        $LDFLAGS = "-X main.Version=${{ steps.version.outputs.VERSION }} -X main.GitCommit=${{ github.sha }} -X main.BuildTime=${{ steps.version.outputs.BUILD_TIME }}"
+        wails build -platform windows/amd64 -ldflags $LDFLAGS
+      shell: pwsh
 
     - name: Package Windows binary
       run: |

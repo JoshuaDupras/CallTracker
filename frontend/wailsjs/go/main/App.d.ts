@@ -40,6 +40,8 @@ export function GetRecentCalls(arg1:number):Promise<Array<db.Call>>;
 
 export function GetUserByID(arg1:number):Promise<db.User>;
 
+export function GetVersion():Promise<Record<string, string>>;
+
 export function Login(arg1:string,arg2:string):Promise<db.User>;
 
 export function Logout():Promise<void>;

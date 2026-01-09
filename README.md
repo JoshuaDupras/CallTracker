@@ -49,6 +49,7 @@ Everything is stored on your computer - no internet needed, no monthly fees, no 
 
 Now that you have the required software installed, you can build the program:
 
+**For Development (includes version info):**
 1. Press the Windows key and type `PowerShell`
 2. Right-click on "Windows PowerShell" and select "Run as administrator"
 3. Navigate to the application folder:
@@ -56,11 +57,19 @@ Now that you have the required software installed, you can build the program:
    cd path\to\call-tracker-wails
    ```
    (Replace `path\to\call-tracker-wails` with wherever you downloaded this project)
-4. Build the application:
+4. Build with version info:
+   ```powershell
+   go run scripts/build
+   ```
+   This embeds git commit info and build timestamp into the executable.
+
+**Standard Build (without version info):**
+1. Follow steps 1-3 above
+2. Build the application:
    ```powershell
    wails build
    ```
-5. Wait 1-2 minutes while it builds (you'll see progress messages)
+3. Wait 1-2 minutes while it builds (you'll see progress messages)
 
 **✅ The program is now ready!** You'll find it at: `build\bin\fd-call-log.exe`
 
@@ -427,7 +436,7 @@ See [RELEASE.md](RELEASE.md) for detailed instructions on creating releases.
 
 **Quick automated release:**
 ```bash
-go run scripts/release.go
+go run scripts/release
 ```
 
 The interactive tool will guide you through the entire release process.

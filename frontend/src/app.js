@@ -52,7 +52,24 @@ function confirmModal() {
 // Initialize app
 window.onload = async function() {
     await loadUsers();
+    await loadVersionInfo();
 };
+
+// Load and display version information
+async function loadVersionInfo() {
+    try {
+        const versionInfo = await window.go.main.App.GetVersion();
+        const versionDiv = document.getElementById('version-info');
+        if (versionInfo) {
+            const versionText = versionInfo.version === 'dev' 
+                ? `dev build (${versionInfo.commit})`
+                : `v${versionInfo.version}`;
+            versionDiv.textContent = versionText;
+        }
+    } catch (error) {
+        console.error('Failed to load version info:', error);
+    }
+}
 
 // Load users for login dropdown
 async function loadUsers() {
