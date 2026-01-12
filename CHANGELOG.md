@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Call statistics and analytics dashboard
 - Mobile companion app
 
+## [0.0.3] - 2026-01-12
+
+logo support, frontend fixes
+
 ## [0.0.2] - 2026-01-09
 
 added version info to build/release
