@@ -14,6 +14,8 @@ export function CreateUser(arg1:string,arg2:string,arg3:string,arg4:string,arg5:
 
 export function DeleteCall(arg1:number):Promise<void>;
 
+export function DeleteLogo():Promise<void>;
+
 export function DeletePicklist(arg1:number):Promise<void>;
 
 export function DeleteUser(arg1:number):Promise<void>;
@@ -31,6 +33,8 @@ export function GetCallYears():Promise<Array<number>>;
 export function GetCallsByYear(arg1:number):Promise<Array<db.Call>>;
 
 export function GetCurrentUser():Promise<db.User>;
+
+export function GetLogo():Promise<db.Logo>;
 
 export function GetNextCallNumber(arg1:number):Promise<string>;
 
@@ -59,3 +63,5 @@ export function UpdateUserAdminStatus(arg1:number,arg2:boolean):Promise<void>;
 export function UpdateUserJoinDate(arg1:number,arg2:string):Promise<void>;
 
 export function UpdateUserPosition(arg1:number,arg2:string):Promise<void>;
+
+export function UploadLogo(arg1:Array<number>,arg2:string):Promise<void>;

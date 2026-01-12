@@ -33,6 +33,11 @@ func InitDB(dbPath string) (*DB, error) {
 		return nil, fmt.Errorf("failed to create tables: %w", err)
 	}
 
+	// Ensure logo table exists (migration for existing databases)
+	if err := database.ensureLogoTable(); err != nil {
+		log.Printf("Warning: failed to ensure logo table: %v", err)
+	}
+
 	// Seed default data
 	if err := database.seedDefaultData(); err != nil {
 		log.Printf("Warning: failed to seed default data: %v", err)
@@ -127,6 +132,16 @@ func (db *DB) createTables() error {
 	CREATE TABLE IF NOT EXISTS settings (
 		key TEXT PRIMARY KEY,
 		value TEXT NOT NULL
+	);
+
+	-- Logo storage table
+	CREATE TABLE IF NOT EXISTS logo (
+		id INTEGER PRIMARY KEY CHECK (id = 1),
+		image_data BLOB NOT NULL,
+		mime_type TEXT NOT NULL,
+		uploaded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		uploaded_by INTEGER,
+		FOREIGN KEY(uploaded_by) REFERENCES users(id)
 	);
 
 	-- Audit log table
@@ -308,4 +323,20 @@ func (db *DB) ensureAdminExists() error {
 	}
 	
 	return nil
+}
+
+// ensureLogoTable creates the logo table if it doesn't exist (migration helper)
+func (db *DB) ensureLogoTable() error {
+	schema := `
+	CREATE TABLE IF NOT EXISTS logo (
+		id INTEGER PRIMARY KEY CHECK (id = 1),
+		image_data BLOB NOT NULL,
+		mime_type TEXT NOT NULL,
+		uploaded_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		uploaded_by INTEGER,
+		FOREIGN KEY(uploaded_by) REFERENCES users(id)
+	);
+	`
+	_, err := db.Exec(schema)
+	return err
 }

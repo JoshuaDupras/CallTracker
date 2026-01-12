@@ -87,3 +87,12 @@ type AuditLog struct {
 	Changes   string    `json:"changes"`
 	Timestamp time.Time `json:"timestamp"`
 }
+
+// Logo represents the uploaded logo image
+type Logo struct {
+	ID         int       `json:"id"`
+	ImageData  []byte    `json:"image_data"`
+	MimeType   string    `json:"mime_type"`
+	UploadedAt time.Time `json:"uploaded_at"`
+	UploadedBy int       `json:"uploaded_by"`
+}

@@ -53,7 +53,68 @@ function confirmModal() {
 window.onload = async function() {
     await loadUsers();
     await loadVersionInfo();
+    await loadAndDisplayLogo();
 };
+
+// Load and display logo throughout the app
+async function loadAndDisplayLogo() {
+    try {
+        const logo = await window.go.main.App.GetLogo();
+        
+        if (logo && logo.image_data && logo.image_data.length > 0) {
+            // Wails returns []byte as base64 string in JSON
+            let bytes;
+            if (typeof logo.image_data === 'string') {
+                // It's a base64 string, decode it
+                const binaryString = atob(logo.image_data);
+                bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+            } else if (logo.image_data instanceof Uint8Array) {
+                bytes = logo.image_data;
+            } else if (logo.image_data instanceof ArrayBuffer) {
+                bytes = new Uint8Array(logo.image_data);
+            } else if (Array.isArray(logo.image_data)) {
+                bytes = new Uint8Array(logo.image_data);
+            } else {
+                return;
+            }
+            
+            // Create blob URL
+            const blob = new Blob([bytes], { type: logo.mime_type });
+            const logoDataUrl = URL.createObjectURL(blob);
+            
+            // Display in login screen
+            const loginLogo = document.getElementById('login-logo');
+            const loginLogoContainer = document.getElementById('logo-container');
+            if (loginLogo && loginLogoContainer) {
+                loginLogo.src = logoDataUrl;
+                loginLogoContainer.style.display = 'block';
+            }
+            
+            // Display in menu screen
+            const menuLogo = document.getElementById('menu-logo');
+            const menuLogoContainer = document.getElementById('menu-logo-container');
+            if (menuLogo && menuLogoContainer) {
+                menuLogo.src = logoDataUrl;
+                menuLogoContainer.style.display = 'block';
+            }
+            
+            // Display in all other screens with header logos
+            const headerLogos = document.querySelectorAll('.header-logo');
+            headerLogos.forEach(img => {
+                img.src = logoDataUrl;
+                if (img.parentElement) {
+                    img.parentElement.style.display = 'block';
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Failed to load logo for display:', error);
+        // Silently fail - logo is optional
+    }
+}
 
 // Load and display version information
 async function loadVersionInfo() {
@@ -79,13 +140,24 @@ async function loadUsers() {
         select.innerHTML = '<option value="">Select your name...</option>';
         
         if (users && users.length > 0) {
-            users.forEach(user => {
-                const option = document.createElement('option');
-                const fullName = `${user.first_name} ${user.last_name}`;
-                option.value = fullName;
-                option.textContent = fullName;
-                select.appendChild(option);
-            });
+            // Filter out the default "Admin User" account from the dropdown
+            const regularUsers = users.filter(user => 
+                !(user.first_name === 'Admin' && user.last_name === 'User')
+            );
+            
+            if (regularUsers.length > 0) {
+                regularUsers.forEach(user => {
+                    const option = document.createElement('option');
+                    const fullName = `${user.first_name} ${user.last_name}`;
+                    option.value = fullName;
+                    option.textContent = fullName;
+                    select.appendChild(option);
+                });
+            } else {
+                // No regular users, show admin login instead
+                showAdminLogin();
+                document.getElementById('admin-link-div').style.display = 'none';
+            }
         } else {
             showAdminLogin();
             document.getElementById('admin-link-div').style.display = 'none';
@@ -108,6 +180,7 @@ function userSelected() {
         pinGroup.style.display = 'block';
         loginBtn.style.display = 'block';
         errorDiv.textContent = '';
+        errorDiv.style.display = 'none';
         // Focus PIN field
         setTimeout(() => document.getElementById('login-pin').focus(), 100);
     } else {
@@ -136,6 +209,7 @@ async function doLogin() {
     
     if (!name || !pin) {
         errorDiv.textContent = 'Please enter your name and PIN';
+        errorDiv.style.display = 'block';
         warningDiv.style.display = 'none';
         return;
     }
@@ -143,10 +217,12 @@ async function doLogin() {
     try {
         currentUser = await window.go.main.App.Login(name, pin);
         errorDiv.textContent = '';
+        errorDiv.style.display = 'none';
         warningDiv.style.display = 'none';
         showMainMenu();
     } catch (error) {
         errorDiv.textContent = 'Invalid credentials';
+        errorDiv.style.display = 'block';
         document.getElementById('login-pin').value = '';
         
         // Show admin contact warning
@@ -332,6 +408,9 @@ function showMainMenu() {
     }
     
     showScreen('menu-screen');
+    
+    // Load and display logo
+    loadAndDisplayLogo();
 }
 
 // Navigation functions
@@ -1650,8 +1729,167 @@ function showFormSettings() {
     alert('Form Settings feature coming soon!');
 }
 
-function showSettings() {
-    alert('Settings feature coming soon!');
+async function showSettings() {
+    showScreen('settings-screen');
+    await loadCurrentLogo();
+}
+
+async function loadCurrentLogo() {
+    const logoPreview = document.getElementById('logo-preview');
+    const noLogoText = document.getElementById('no-logo-text');
+    const statusDiv = document.getElementById('logo-status');
+    
+    if (!logoPreview || !noLogoText) {
+        if (statusDiv) statusDiv.innerHTML = '<div class="error">ERROR: Preview elements not found in DOM</div>';
+        return;
+    }
+    
+    try {
+        if (statusDiv) statusDiv.innerHTML = '<div>Loading logo from database...</div>';
+        
+        const logo = await window.go.main.App.GetLogo();
+        
+        if (!logo) {
+            if (statusDiv) statusDiv.innerHTML = '';
+            logoPreview.style.display = 'none';
+            noLogoText.style.display = 'block';
+            return;
+        }
+        
+        if (!logo.image_data || logo.image_data.length === 0) {
+            if (statusDiv) statusDiv.innerHTML = '';
+            logoPreview.style.display = 'none';
+            noLogoText.style.display = 'block';
+            return;
+        }
+        
+        // Wails returns []byte as base64 string in JSON
+        let bytes;
+        if (typeof logo.image_data === 'string') {
+            // It's a base64 string, decode it
+            const binaryString = atob(logo.image_data);
+            bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+        } else if (logo.image_data instanceof Uint8Array) {
+            bytes = logo.image_data;
+        } else if (logo.image_data instanceof ArrayBuffer) {
+            bytes = new Uint8Array(logo.image_data);
+        } else if (Array.isArray(logo.image_data)) {
+            bytes = new Uint8Array(logo.image_data);
+        } else {
+            if (statusDiv) statusDiv.innerHTML = '<div class="error">Unknown data type: ' + typeof logo.image_data + '</div>';
+            return;
+        }
+        
+        // Create a blob and object URL
+        const blob = new Blob([bytes], { type: logo.mime_type });
+        const objectUrl = URL.createObjectURL(blob);
+        
+        // Set the image
+        logoPreview.onload = () => {
+            logoPreview.style.display = 'block';
+            noLogoText.style.display = 'none';
+            if (statusDiv) statusDiv.innerHTML = '<div class="success">✓ Logo loaded!</div>';
+            setTimeout(() => { if (statusDiv) statusDiv.innerHTML = ''; }, 3000);
+        };
+        
+        logoPreview.onerror = () => {
+            logoPreview.style.display = 'none';
+            noLogoText.style.display = 'block';
+            if (statusDiv) statusDiv.innerHTML = '<div class="error">Image failed to load</div>';
+        };
+        
+        logoPreview.src = objectUrl;
+        
+    } catch (error) {
+        if (statusDiv) statusDiv.innerHTML = `<div class="error">ERROR: ${error.message}</div>`;
+        logoPreview.style.display = 'none';
+        noLogoText.style.display = 'block';
+    }
+    
+    // Also refresh logo display throughout the app
+    setTimeout(() => {
+        loadAndDisplayLogo();
+    }, 100);
+}
+
+async function uploadLogo() {
+    const fileInput = document.getElementById('logo-file-input');
+    const statusDiv = document.getElementById('logo-status');
+    
+    if (!fileInput.files || fileInput.files.length === 0) {
+        statusDiv.innerHTML = '<div class="error">Please select an image file</div>';
+        return;
+    }
+    
+    const file = fileInput.files[0];
+    
+    // Validate file size (2MB max)
+    if (file.size > 2 * 1024 * 1024) {
+        statusDiv.innerHTML = '<div class="error">File size exceeds 2MB limit</div>';
+        return;
+    }
+    
+    // Validate file type
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
+    if (!validTypes.includes(file.type)) {
+        statusDiv.innerHTML = '<div class="error">Invalid file type. Please upload PNG, JPEG, or SVG</div>';
+        return;
+    }
+    
+    try {
+        statusDiv.innerHTML = '<div>Uploading...</div>';
+        
+        // Read file as array buffer
+        const arrayBuffer = await file.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        const byteArray = Array.from(uint8Array);
+        
+        // Upload to backend
+        await window.go.main.App.UploadLogo(byteArray, file.type);
+        
+        statusDiv.innerHTML = '<div class="success">Logo uploaded successfully!</div>';
+        
+        // Wait a moment then reload logo display
+        setTimeout(async () => {
+            await loadCurrentLogo();
+        }, 500);
+        
+        // Clear file input
+        fileInput.value = '';
+        
+        // Clear status after 3 seconds
+        setTimeout(() => {
+            statusDiv.innerHTML = '';
+        }, 3000);
+        
+    } catch (error) {
+        console.error('Failed to upload logo:', error);
+        statusDiv.innerHTML = '<div class="error">Failed to upload logo: ' + error + '</div>';
+    }
+}
+
+async function deleteLogo() {
+    if (!confirm('Are you sure you want to remove the logo?')) {
+        return;
+    }
+    
+    const statusDiv = document.getElementById('logo-status');
+    
+    try {
+        await window.go.main.App.DeleteLogo();
+        statusDiv.innerHTML = '<div class="success">Logo removed successfully!</div>';
+        await loadCurrentLogo();
+        
+        setTimeout(() => {
+            statusDiv.innerHTML = '';
+        }, 3000);
+    } catch (error) {
+        console.error('Failed to delete logo:', error);
+        statusDiv.innerHTML = '<div class="error">Failed to remove logo: ' + error + '</div>';
+    }
 }
 
 // Make functions globally available
@@ -1678,6 +1916,8 @@ window.loadPicklistItems = loadPicklistItems;
 window.showAddPicklist = showAddPicklist;
 window.showFormSettings = showFormSettings;
 window.showSettings = showSettings;
+window.uploadLogo = uploadLogo;
+window.deleteLogo = deleteLogo;
 window.wizardNext = wizardNext;
 window.wizardPrevious = wizardPrevious;
 window.closeModal = closeModal;

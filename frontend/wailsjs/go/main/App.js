@@ -26,6 +26,10 @@ export function DeleteCall(arg1) {
   return window['go']['main']['App']['DeleteCall'](arg1);
 }
 
+export function DeleteLogo() {
+  return window['go']['main']['App']['DeleteLogo']();
+}
+
 export function DeletePicklist(arg1) {
   return window['go']['main']['App']['DeletePicklist'](arg1);
 }
@@ -60,6 +64,10 @@ export function GetCallsByYear(arg1) {
 
 export function GetCurrentUser() {
   return window['go']['main']['App']['GetCurrentUser']();
+}
+
+export function GetLogo() {
+  return window['go']['main']['App']['GetLogo']();
 }
 
 export function GetNextCallNumber(arg1) {
@@ -116,4 +124,8 @@ export function UpdateUserJoinDate(arg1, arg2) {
 
 export function UpdateUserPosition(arg1, arg2) {
   return window['go']['main']['App']['UpdateUserPosition'](arg1, arg2);
+}
+
+export function UploadLogo(arg1, arg2) {
+  return window['go']['main']['App']['UploadLogo'](arg1, arg2);
 }

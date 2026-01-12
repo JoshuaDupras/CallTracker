@@ -252,3 +252,24 @@ func (a *App) DeleteCall(id int) error {
 	// Note: no DeleteCall method exists, would need to implement soft delete if needed
 	return a.db.UpdateCall(call, []int{}, []int{}, []string{})
 }
+
+// UploadLogo uploads and stores a logo image
+func (a *App) UploadLogo(imageData []byte, mimeType string) error {
+	if a.currentUser == nil || !a.currentUser.IsAdmin {
+		return ErrUnauthorized
+	}
+	return a.db.SaveLogo(imageData, mimeType, a.currentUser.ID)
+}
+
+// GetLogo retrieves the stored logo image
+func (a *App) GetLogo() (*db.Logo, error) {
+	return a.db.GetLogo()
+}
+
+// DeleteLogo removes the stored logo
+func (a *App) DeleteLogo() error {
+	if a.currentUser == nil || !a.currentUser.IsAdmin {
+		return ErrUnauthorized
+	}
+	return a.db.DeleteLogo()
+}

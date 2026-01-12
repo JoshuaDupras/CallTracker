@@ -14,7 +14,10 @@
         <!-- Login Screen -->
         <div id="login-screen" class="screen">
             <div class="login-container">
-                <h1>🚒 Fire Department Call Log</h1>
+                <div id="logo-container" style="text-align: center; margin-bottom: 20px; display: none;">
+                    <img id="login-logo" style="max-width: 200px; max-height: 100px; object-fit: contain;" />
+                </div>
+                <h1>Fire Department Call Log</h1>
                 <div class="login-form">
                     <div class="form-group">
                         <label>Name</label>
@@ -24,10 +27,10 @@
                     </div>
                     <div class="form-group" id="pin-group" style="display:none;">
                         <label>PIN</label>
-                        <input type="password" id="login-pin" maxlength="4" placeholder="Enter 4-digit PIN">
+                        <input type="password" id="login-pin" maxlength="4" placeholder="Enter 4-digit PIN" onkeypress="if(event.key === 'Enter') doLogin()">
                     </div>
                     <button class="btn btn-primary" id="login-btn" onclick="doLogin()" style="display:none;">Login</button>
-                    <div id="login-error" class="error"></div>
+                    <div id="login-error" class="error" style="display:none;"></div>
                     <div id="admin-warning" class="warning" style="display:none;"></div>
                     <div class="admin-link" id="admin-link-div">
                         <a href="#" onclick="showAdminLogin(); return false;">Admin Login</a>
@@ -42,6 +45,9 @@
         <!-- Main Menu Screen -->
         <div id="menu-screen" class="screen" style="display:none;">
             <div class="header">
+                <div id="menu-logo-container" style="display: none; margin-right: 20px;">
+                    <img id="menu-logo" style="max-width: 100px; max-height: 50px; object-fit: contain;" />
+                </div>
                 <h1>Fire Department Call Log</h1>
                 <div class="user-info">
                     <span id="current-user"></span>
@@ -78,6 +84,9 @@
         <div id="newcall-screen" class="screen" style="display:none;">
             <div class="header">
                 <button class="btn btn-back" onclick="backToMenu()">← Back</button>
+                <div id="newcall-logo-container" style="display: none; margin-right: 15px;">
+                    <img class="header-logo" style="max-width: 100px; max-height: 50px; object-fit: contain;" />
+                </div>
                 <h1>New Call Entry</h1>
                 <div id="incident-number-header" style="display: none; margin-left: auto; padding: 10px 20px; background: #2196F3; color: white; border-radius: 8px; font-size: 1.1em; font-weight: bold;">
                     Incident #: <span id="incident-number-display">-</span>
@@ -409,6 +418,36 @@
                         <button class="btn btn-large" onclick="exportPDF()">📑 Export to PDF</button>
                     </div>
                     <div id="export-status" class="success"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Screen -->
+        <div id="settings-screen" class="screen" style="display:none;">
+            <div class="header">
+                <button class="btn btn-back" onclick="backToMenu()">← Back</button>
+                <h1>Settings</h1>
+            </div>
+            <div class="form-container">
+                <div class="card">
+                    <h3>Logo Configuration</h3>
+                    <div class="form-group">
+                        <label>Current Logo</label>
+                        <div id="current-logo-display" style="margin: 10px 0; min-height: 100px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: center; background: #f9f9f9;">
+                            <span id="no-logo-text" style="color: #999;">No logo uploaded</span>
+                            <img id="logo-preview" style="display: none; max-width: 300px; max-height: 150px; object-fit: contain;" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="logo-file-input">Upload New Logo</label>
+                        <input type="file" id="logo-file-input" accept="image/png,image/jpeg,image/jpg,image/svg+xml" style="margin-bottom: 10px;">
+                        <div style="font-size: 0.9em; color: #666; margin-bottom: 10px;">
+                            Supported formats: PNG, JPEG, SVG. Maximum file size: 2MB
+                        </div>
+                        <button class="btn btn-primary" onclick="uploadLogo()">Upload Logo</button>
+                        <button class="btn btn-secondary" onclick="deleteLogo()" style="margin-left: 10px;">Remove Logo</button>
+                    </div>
+                    <div id="logo-status" style="margin-top: 10px;"></div>
                 </div>
             </div>
         </div>
